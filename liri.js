@@ -1,4 +1,5 @@
 require("dotenv").config();
+var inquirer = require("inquirer");
 const axios = require("axios");
 const Spotify = require("node-spotify-api");
 const keys = require("./keys.js");
@@ -17,10 +18,14 @@ function getBandsInTown() {
     .then(function(response) {
       console.log("\n\n\nYou Searched For: " + searchTerm);
       console.log("\n******** Results *********\n\n");
-      console.log(response.data[0].venue.name);
-      console.log(response.data[0].venue.city);
-      console.log(response.data[0].venue.region);
-      console.log(response.data[0].datetime);
+      if (response.data[0] === undefined) {
+        console.log("*** There were no results for this search ***\n\n\n");
+      } else {
+        console.log(response.data[0].venue.name);
+        console.log(response.data[0].venue.city);
+        console.log(response.data[0].venue.region);
+        console.log(response.data[0].datetime);
+      }
       console.log("\n\n******** End *********\n\n\n");
     });
 }
@@ -88,13 +93,25 @@ function executeRequest() {
     case "concert-this":
       getBandsInTown();
       break;
+    case "Bands in town":
+      getBandsInTown();
+      break;
     case "spotify-this-song":
+      getSpotifyInfo();
+      break;
+    case "Search for a Spotify song":
       getSpotifyInfo();
       break;
     case "movie-this":
       getMovieInfo();
       break;
+    case "Search for movie info":
+      getMovieInfo();
+      break;
     case "do-what-it-says":
+      doWhatItSays();
+      break;
+    case "Default":
       doWhatItSays();
       break;
     default:
@@ -104,4 +121,31 @@ function executeRequest() {
   }
 }
 
-executeRequest();
+function buildRequest() {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "What type of search would you like to do?",
+        name: "searchType",
+        choices: [
+          "Bands in town",
+          "Search for a Spotify song",
+          "Search for movie info",
+          "Default"
+        ]
+      },
+      {
+        type: "input",
+        message: "What would you like to search for?",
+        name: "searchTerm"
+      }
+    ])
+    .then(answers => {
+      searchTerm = answers.searchTerm;
+      command = answers.searchType;
+      executeRequest();
+    });
+}
+
+buildRequest();

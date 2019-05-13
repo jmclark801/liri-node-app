@@ -2,9 +2,10 @@ require("dotenv").config();
 const axios = require("axios");
 const Spotify = require("node-spotify-api");
 const keys = require("./keys.js");
+const fs = require("fs");
 var spotify = new Spotify(keys.spotify);
 var command = process.argv[2];
-var searchTerm = process.argv[3];
+var searchTerm = process.argv.slice(3).join(" ");
 
 function getBandsInTown() {
   axios
@@ -62,32 +63,45 @@ function getMovieInfo() {
         console.log("\n");
       });
       console.log("\n******** End *********\n\n");
-      // console.log(response.data);
     });
-
-  // Requirements
-  // * Title of the movie.
-  // * Year the movie came out.
-  // * IMDB Rating of the movie.
-  // * Rotten Tomatoes Rating of the movie.
-  // * Country where the movie was produced.
-  // * Language of the movie.
-  // * Plot of the movie.
-  // * Actors in the movie.
 }
 
-switch (command) {
-  case "concert-this":
-    getBandsInTown();
-    break;
-  case "spotify-this-song":
-    getSpotifyInfo();
-    break;
-  case "movie-this":
-    getMovieInfo();
-    break;
-  case "do-what-it-says":
-    break;
-  default:
-    console.log("This was not a valid option.  Please make a valid selection");
+function doWhatItSays() {
+  fs.readFile("./random.txt", "utf8", (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const searchTermArray = data.split(",");
+      const command = searchTermArray[0];
+      const searchTerm = searchTermArray[1];
+      console.log(command);
+      console.log(searchTerm);
+      // executeRequest() here will cause an infinite loop for some reason.
+    }
+  });
+
+  executeRequest();
 }
+
+function executeRequest() {
+  switch (command) {
+    case "concert-this":
+      getBandsInTown();
+      break;
+    case "spotify-this-song":
+      getSpotifyInfo();
+      break;
+    case "movie-this":
+      getMovieInfo();
+      break;
+    case "do-what-it-says":
+      doWhatItSays();
+      break;
+    default:
+      console.log(
+        "This was not a valid option.  Please make a valid selection"
+      );
+  }
+}
+
+executeRequest();

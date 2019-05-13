@@ -3,6 +3,7 @@ var inquirer = require("inquirer");
 const axios = require("axios");
 const Spotify = require("node-spotify-api");
 const keys = require("./keys.js");
+const moment = require("moment");
 const fs = require("fs");
 var spotify = new Spotify(keys.spotify);
 var command = process.argv[2];
@@ -21,10 +22,13 @@ function getBandsInTown() {
       if (response.data[0] === undefined) {
         console.log("*** There were no results for this search ***\n\n\n");
       } else {
-        console.log(response.data[0].venue.name);
-        console.log(response.data[0].venue.city);
-        console.log(response.data[0].venue.region);
-        console.log(response.data[0].datetime);
+        var unformattedDate = response.data[0].datetime;
+        var dateFormat = "MM/DD/YYYY hh:mmA";
+        var formattedDate = moment(unformattedDate).format(dateFormat);
+        console.log("Venue Name - " + response.data[0].venue.name);
+        console.log("Venue City - " + response.data[0].venue.city);
+        console.log("Region - " + response.data[0].venue.region);
+        console.log("Event Date - " + formattedDate);
       }
       console.log("\n\n******** End *********\n\n\n");
     });
@@ -82,10 +86,9 @@ function doWhatItSays() {
       console.log(command);
       console.log(searchTerm);
       // executeRequest() here will cause an infinite loop for some reason.
+      executeRequest();
     }
   });
-
-  executeRequest();
 }
 
 function executeRequest() {

@@ -1,22 +1,20 @@
-// To Do List:
-// - Handle multiple results and No Results for each search
-// - Get correct API for IMDB vs OMDB (OMDB doesn't have the fields that are required)
-// - If no song is provided, then your program will default to "The Sign" by Ace of Base
-// -- https://tutorialedge.net/javascript/nodejs/reading-writing-files-with-nodejs/
-
 require("dotenv").config();
-var inquirer = require("inquirer");
+const inquirer = require("inquirer");
 const axios = require("axios");
 const Spotify = require("node-spotify-api");
 const keys = require("./keys.js");
 const moment = require("moment");
 const fs = require("fs");
-var spotify = new Spotify(keys.spotify);
-var command = process.argv[2];
-var searchTerm = process.argv.slice(3).join(" ");
-var logString = "";
+const spotify = new Spotify(keys.spotify);
+let command = process.argv[2];
+let searchTerm = process.argv.slice(3).join(" ");
+let logString = "";
 
+// Uses the bandsintown api to search for the artist selected
 function getBandsInTown() {
+  if (searchTerm === "") {
+    searchTerm = "Ariana Grande";
+  }
   axios
     .get(
       "https://rest.bandsintown.com/artists/" +
@@ -45,7 +43,11 @@ function getBandsInTown() {
     });
 }
 
+// Uses the node-spotify-api package to get information from spotify based on song selected
 function getSpotifyInfo() {
+  if (searchTerm === "") {
+    searchTerm = "the sign ace of base";
+  }
   spotify.search({ type: "track", query: searchTerm }, function(err, data) {
     if (err) {
       logString += "Error occurred: " + err;
@@ -68,7 +70,11 @@ function getSpotifyInfo() {
   });
 }
 
+// Uses the omdb api to display results for the movie searched
 function getMovieInfo() {
+  if (searchTerm === "") {
+    searchTerm = "Star Wars";
+  }
   axios
     .get("http://omdbapi.com/?apikey=trilogy&s=" + searchTerm)
     .then(function(response) {
@@ -97,6 +103,7 @@ function getMovieInfo() {
     });
 }
 
+// A default function that reads from random.txt
 function doWhatItSays() {
   fs.readFile("./random.txt", "utf8", (err, data) => {
     if (err) {
@@ -110,6 +117,8 @@ function doWhatItSays() {
   });
 }
 
+// Users are able to run the request with a command in argv[2] and a search term in argv[3] OR without argv,
+// inquirer presents a menu instead
 function executeRequest() {
   switch (command) {
     case "concert-this":
@@ -143,12 +152,14 @@ function executeRequest() {
   }
 }
 
+// Used in all search functions to log results
 function logResults() {
   fs.appendFile("log.txt", logString, "utf8", function(err) {
     if (err) throw err;
   });
 }
 
+// Builds the menu using Inquirer if the user doesn't provide argv[2] and argv[3]
 function buildRequest() {
   inquirer
     .prompt([
@@ -176,7 +187,7 @@ function buildRequest() {
     });
 }
 
-console.log(command, searchTerm);
+// Determines whether to show the menu or execute the search using argv[2] and argv[3]
 if (command !== undefined && searchTerm !== "") {
   executeRequest();
 } else {

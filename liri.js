@@ -1,3 +1,11 @@
+// To Do List:
+// - Handle multiple results and No Results for each search
+// - Get correct API for IMDB vs OMDB (OMDB doesn't have the fields that are required)
+// - If no song is provided, then your program will default to "The Sign" by Ace of Base
+// - How to handle only showing menu if no argv[2] or argv[3] slice
+// - Append search results to text file called log.txt
+// -- https://tutorialedge.net/javascript/nodejs/reading-writing-files-with-nodejs/
+
 require("dotenv").config();
 var inquirer = require("inquirer");
 const axios = require("axios");
@@ -81,11 +89,10 @@ function doWhatItSays() {
       console.log(err);
     } else {
       const searchTermArray = data.split(",");
-      const command = searchTermArray[0];
-      const searchTerm = searchTermArray[1];
+      command = searchTermArray[0];
+      searchTerm = searchTermArray[1];
       console.log(command);
       console.log(searchTerm);
-      // executeRequest() here will cause an infinite loop for some reason.
       executeRequest();
     }
   });

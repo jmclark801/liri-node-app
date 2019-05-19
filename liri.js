@@ -13,7 +13,7 @@ let logString = "";
 // Uses the bandsintown api to search for the artist selected
 function getBandsInTown() {
   if (searchTerm === "") {
-    searchTerm = "Ariana Grande";
+    searchTerm = "Ariana Grande"; //default search
   }
   axios
     .get(
@@ -46,7 +46,7 @@ function getBandsInTown() {
 // Uses the node-spotify-api package to get information from spotify based on song selected
 function getSpotifyInfo() {
   if (searchTerm === "") {
-    searchTerm = "the sign ace of base";
+    searchTerm = "the sign ace of base"; // default search
   }
   spotify.search({ type: "track", query: searchTerm }, function(err, data) {
     if (err) {
@@ -188,7 +188,7 @@ function buildRequest() {
 }
 
 // Determines whether to show the menu or execute the search using argv[2] and argv[3]
-if (command !== undefined && searchTerm !== "") {
+if (command !== undefined) {
   executeRequest();
 } else {
   buildRequest();
